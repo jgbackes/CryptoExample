@@ -13,6 +13,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Example for Java Crypto API
+ *
+ * Used as part of the Java Crypto class
  */
 public class RsaExample {
 

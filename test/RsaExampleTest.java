@@ -10,8 +10,11 @@ import java.security.cert.CertificateException;
 import java.util.Arrays;
 
 /**
+ * Example of a test used against the RsaExample class
+ *
  * Created by jbackes on 5/6/17
  */
+
 public class RsaExampleTest extends TestCase {
   private RsaExample _example;
   private String _message;
