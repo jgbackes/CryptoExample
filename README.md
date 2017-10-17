@@ -1,3 +1,5 @@
 Example RSA Crypto Example
 
-jeff backes
+This example shows how to encrypt, decrypt, sign and verify using the Java Cryptographic API
+
+**jeff backes**
