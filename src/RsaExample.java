@@ -13,20 +13,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Example for Java Crypto API
- *
- * Used as part of the Java Crypto class
- *
- * by Jeff Backes 10/15/2017
  */
 public class RsaExample {
 
-  private static final String JAVA_CRYPTOGRAPHY_EXTENSION = "JCEKS";
-
   /**
-   * Static method to get a pseudo random key
+   * Method to get a pseudo random key
    *
    * @return a pseudo random AES key
-   * @throws NoSuchAlgorithmException There is no such crypto algorithm
+   * @throws NoSuchAlgorithmException
    */
   public Key generateKey() throws NoSuchAlgorithmException {
     KeyGenerator generator = KeyGenerator.getInstance("AES");
@@ -36,50 +30,42 @@ public class RsaExample {
   }
 
   /**
-   * Static method to get a pseudo random 2048bit RSA keypair
+   * Method to get a pseudo random 2048bit RSA keypair
    *
-   * @return a pseudo random 2048bit RSA keypair, or null if public or private are not available
+   * @return a pseudo random 2048bit RSA keypair
    * @throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException
    */
   public KeyPair getKeyPairFromKeyStore() throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, UnrecoverableEntryException {
     //Generated with:
     //  keytool -genkeypair -alias mykey -storepass s3cr3t -keypass s3cr3t -keyalg RSA -keystore keystore.jks
 
-    PublicKey publicKey = null;
-    PrivateKey privateKey = null;
-    KeyPair result = null;
-
     InputStream ins = RsaExample.class.getResourceAsStream("/keystore.jks");
 
-    if (ins != null) {
-      KeyStore keyStore = KeyStore.getInstance(JAVA_CRYPTOGRAPHY_EXTENSION);
-      keyStore.load(ins, "s3cr3t".toCharArray());   //Keystore password
-      KeyStore.PasswordProtection keyPassword =       //Key password
-          new KeyStore.PasswordProtection("s3cr3t".toCharArray());
+    KeyStore keyStore = KeyStore.getInstance("JCEKS");
+    keyStore.load(ins, "s3cr3t".toCharArray());   //Keystore password
+    KeyStore.PasswordProtection keyPassword =       //Key password
+        new KeyStore.PasswordProtection("s3cr3t".toCharArray());
 
-      KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("mykey", keyPassword);
+    KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry) keyStore.getEntry("mykey", keyPassword);
 
-      java.security.cert.Certificate cert = keyStore.getCertificate("mykey");
-       publicKey = cert.getPublicKey();
-       privateKey = privateKeyEntry.getPrivateKey();
-    }
+    java.security.cert.Certificate cert = keyStore.getCertificate("mykey");
+    PublicKey publicKey = cert.getPublicKey();
+    PrivateKey privateKey = privateKeyEntry.getPrivateKey();
 
-    if (publicKey != null && privateKey != null) {
-      result = new KeyPair(publicKey, privateKey);
-    }
-
-    return result;
+    return new KeyPair(publicKey, privateKey);
   }
 
   /**
+   * Method to encrypt a string o text using a public key
+   *
    * @param plainText The text to be encrypted
    * @param publicKey The public key of the KeyPair
    * @return Encrypted text
-   * @throws NoSuchPaddingException Padding is incorrect
-   * @throws NoSuchAlgorithmException There is no such crypto algorithm
-   * @throws InvalidKeyException The key is invalid
-   * @throws BadPaddingException The padding is invalid
-   * @throws IllegalBlockSizeException The block size is not acceptable
+   * @throws NoSuchPaddingException
+   * @throws NoSuchAlgorithmException
+   * @throws InvalidKeyException
+   * @throws BadPaddingException
+   * @throws IllegalBlockSizeException
    */
   public String encrypt(String plainText, PublicKey publicKey) throws NoSuchPaddingException
       , NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
@@ -92,14 +78,16 @@ public class RsaExample {
   }
 
   /**
+   * Method to decript an encrypted string using a private key
+   *
    * @param cipherText The encrypted text
    * @param privateKey The private key of the keyPair
    * @return The plain text
-   * @throws NoSuchPaddingException Padding is incorrect
-   * @throws NoSuchAlgorithmException There is no such crypto algorithm
-   * @throws InvalidKeyException The key is invalid
-   * @throws BadPaddingException The padding is invalid
-   * @throws IllegalBlockSizeException The block size is not acceptable
+   * @throws NoSuchPaddingException
+   * @throws NoSuchAlgorithmException
+   * @throws InvalidKeyException
+   * @throws BadPaddingException
+   * @throws IllegalBlockSizeException
    */
   public String decrypt(String cipherText, PrivateKey privateKey) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
     byte[] bytes = Base64.getDecoder().decode(cipherText);
@@ -111,12 +99,14 @@ public class RsaExample {
   }
 
   /**
+   * Method to compute a digital signature for a give string of text using a given private key
+   *
    * @param plainText  The text from which we want a digital signature
    * @param privateKey The private key from the keyPair
    * @return A string in base64 that represents the signature
-   * @throws NoSuchAlgorithmException There is no such crypto algorithm
-   * @throws InvalidKeyException The key is invalid
-   * @throws SignatureException The signature is invalid
+   * @throws NoSuchAlgorithmException
+   * @throws InvalidKeyException
+   * @throws SignatureException
    */
   public String sign(String plainText, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     Signature privateSignature = Signature.getInstance("SHA256withRSA");
@@ -136,9 +126,9 @@ public class RsaExample {
    * @param signature The digital signature for this plainText
    * @param publicKey The public key half of the keyPair
    * @return boolean TRUE if signature matches
-   * @throws NoSuchAlgorithmException There is no such crypto algorithm
-   * @throws InvalidKeyException The key is invalid
-   * @throws SignatureException The signature is invalid
+   * @throws NoSuchAlgorithmException
+   * @throws InvalidKeyException
+   * @throws SignatureException
    */
   public boolean verify(String plainText, String signature, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     Signature publicSignature = Signature.getInstance("SHA256withRSA");
